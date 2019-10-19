@@ -1,0 +1,190 @@
+{
+	"info": {
+		"_postman_id": "564474d2-a4ee-4bd2-9467-284e9833f2c2",
+		"name": "flip",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "add merchant",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept-Encoding",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "c",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"data\":{\n\t\t\"name\":\"altha234679\",\n\t\t\"balance\": 10000\n\t},\n\t\"finance_info\":[\n\t\t{\n\t\t\t\"bank_id\": 1,\n\t\t\t\"account_number\": \"1234567890\"\n\t\t},{\n\t\t\t\"bank_id\": 2,\n\t\t\t\"account_number\": \"3234567890\"\n\t\t}\n\t]\n}"
+				},
+				"url": {
+					"raw": "http://{{host_api}}/addmerchant",
+					"protocol": "http",
+					"host": [
+						"{{host_api}}"
+					],
+					"path": [
+						"addmerchant"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add balance merchant",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept-Encoding",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "c",
+						"type": "text",
+						"value": "",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\":\"191020191214255daafe21c01e2\",\n\t\"balance\": 10000\n\t\n}"
+				},
+				"url": {
+					"raw": "http://{{host_api}}/add_balance",
+					"protocol": "http",
+					"host": [
+						"{{host_api}}"
+					],
+					"path": [
+						"add_balance"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "merchant withdraw",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept-Encoding",
+						"type": "text",
+						"value": "application/json",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\":\"191020191214255daafe21c01e2\",\n\t\"amount\":10\n}"
+				},
+				"url": {
+					"raw": "http://{{host_api}}/withdraw",
+					"protocol": "http",
+					"host": [
+						"{{host_api}}"
+					],
+					"path": [
+						"withdraw"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "status withdraw",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host_api}}/status/123",
+					"protocol": "http",
+					"host": [
+						"{{host_api}}"
+					],
+					"path": [
+						"status",
+						"123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get bank list",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host_api}}/bank_list",
+					"protocol": "http",
+					"host": [
+						"{{host_api}}"
+					],
+					"path": [
+						"bank_list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "list merchant",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{host_api}}/merchant_list?limit=2&page=1",
+					"protocol": "http",
+					"host": [
+						"{{host_api}}"
+					],
+					"path": [
+						"merchant_list"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "2"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
