@@ -1,0 +1,171 @@
+# ************************************************************
+# Sequel Pro SQL dump
+# Version 5224
+#
+# http://www.sequelpro.com/
+# https://github.com/sequelpro/sequelpro
+#
+# Host: 127.0.0.1 (MySQL 5.7.26)
+# Database: test
+# Generation Time: 2019-10-21 12:25:08 +0000
+# ************************************************************
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+SET NAMES utf8mb4;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+# Dump of table bank
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `bank`;
+
+CREATE TABLE `bank` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(40) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `bank` WRITE;
+/*!40000 ALTER TABLE `bank` DISABLE KEYS */;
+
+INSERT INTO `bank` (`id`, `name`)
+VALUES
+	(1,'BNI'),
+	(2,'MANDIRI'),
+	(3,'BCA');
+
+/*!40000 ALTER TABLE `bank` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table flip_service
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `flip_service`;
+
+CREATE TABLE `flip_service` (
+  `id` int(11) unsigned NOT NULL,
+  `request` text NOT NULL,
+  `response` text NOT NULL,
+  `created_at` datetime NOT NULL,
+  `status` int(11) NOT NULL DEFAULT '1' COMMENT '1: pending. 2: success',
+  `merchant_id` varchar(40) NOT NULL DEFAULT '',
+  `request_id` int(11) unsigned NOT NULL,
+  `receipt` varchar(300) DEFAULT NULL,
+  `time_served` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `merchant_use_flip` (`merchant_id`),
+  CONSTRAINT `merchant_use_flip` FOREIGN KEY (`merchant_id`) REFERENCES `merchant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table merchant
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `merchant`;
+
+CREATE TABLE `merchant` (
+  `id` varchar(40) NOT NULL DEFAULT '',
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `balance` decimal(11,2) NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `merchant` WRITE;
+/*!40000 ALTER TABLE `merchant` DISABLE KEYS */;
+
+INSERT INTO `merchant` (`id`, `name`, `balance`, `created_at`)
+VALUES
+	('191020191145205daaf7500c7de','althaf',10000.00,'2019-10-19 18:49:30'),
+	('191020191214035daafe0ba4a54','althaf1',10000.00,'2019-10-19 19:14:03'),
+	('191020191214075daafe0f1c72c','altha2',10000.00,'2019-10-19 19:14:07'),
+	('191020191214095daafe1190b8c','altha23',10000.00,'2019-10-19 19:14:09'),
+	('191020191214125daafe14ce417','altha234',10000.00,'2019-10-19 19:14:12'),
+	('191020191214165daafe18155e3','altha2346',10000.00,'2019-10-19 19:14:16'),
+	('191020191214195daafe1b11c64','altha23467',10000.00,'2019-10-19 19:14:19'),
+	('191020191214225daafe1e2063a','altha234678',10000.00,'2019-10-19 19:14:22'),
+	('191020191214255daafe21c01e2','altha234679',19980.00,'2019-10-19 19:14:25');
+
+/*!40000 ALTER TABLE `merchant` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table merchant_bank_account
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `merchant_bank_account`;
+
+CREATE TABLE `merchant_bank_account` (
+  `id` varchar(40) NOT NULL DEFAULT '',
+  `merchant_id` varchar(40) NOT NULL DEFAULT '',
+  `bank_account` varchar(40) NOT NULL DEFAULT '',
+  `bank_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `account_bank_merchant` (`merchant_id`),
+  CONSTRAINT `account_bank_merchant` FOREIGN KEY (`merchant_id`) REFERENCES `merchant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `merchant_bank_account` WRITE;
+/*!40000 ALTER TABLE `merchant_bank_account` DISABLE KEYS */;
+
+INSERT INTO `merchant_bank_account` (`id`, `merchant_id`, `bank_account`, `bank_id`)
+VALUES
+	('191020191145205daaf750169d2','191020191145205daaf7500c7de','1234567890',1),
+	('191020191145205daaf750172cc','191020191145205daaf7500c7de','3234567890',2),
+	('191020191214035daafe0ba5413','191020191214035daafe0ba4a54','1234567890',1),
+	('191020191214035daafe0ba5959','191020191214035daafe0ba4a54','3234567890',2),
+	('191020191214075daafe0f1cd18','191020191214075daafe0f1c72c','1234567890',1),
+	('191020191214075daafe0f1d4cd','191020191214075daafe0f1c72c','3234567890',2),
+	('191020191214095daafe1192c14','191020191214095daafe1190b8c','1234567890',1),
+	('191020191214095daafe119618f','191020191214095daafe1190b8c','3234567890',2),
+	('191020191214125daafe14ce9f3','191020191214125daafe14ce417','1234567890',1),
+	('191020191214125daafe14ceb3f','191020191214125daafe14ce417','3234567890',2),
+	('191020191214165daafe18157c4','191020191214165daafe18155e3','1234567890',1),
+	('191020191214165daafe18158e4','191020191214165daafe18155e3','3234567890',2),
+	('191020191214195daafe1b14a81','191020191214195daafe1b11c64','1234567890',1),
+	('191020191214195daafe1b14c05','191020191214195daafe1b11c64','3234567890',2),
+	('191020191214225daafe1e20777','191020191214225daafe1e2063a','1234567890',1),
+	('191020191214225daafe1e20891','191020191214225daafe1e2063a','3234567890',2),
+	('191020191214255daafe21c055c','191020191214255daafe21c01e2','1234567890',1),
+	('191020191214255daafe21c0c53','191020191214255daafe21c01e2','3234567890',2);
+
+/*!40000 ALTER TABLE `merchant_bank_account` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table merchant_request
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `merchant_request`;
+
+CREATE TABLE `merchant_request` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `type` int(11) NOT NULL DEFAULT '1' COMMENT '1: withdraw, 2: deposit',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `merchant_id` int(11) NOT NULL,
+  `amount` decimal(11,2) NOT NULL DEFAULT '0.00',
+  `status` int(11) DEFAULT '1' COMMENT '1: process, 2: completed',
+  `bank_name` int(11) NOT NULL,
+  `bank_account` varchar(40) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
