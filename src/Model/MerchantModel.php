@@ -4,6 +4,7 @@ include_once(__DIR__ . "/../Base/IAccount.php");
 include_once(__DIR__ . "/../Base/BaseModel.php");
 include_once(__DIR__ . "/../Utils/flip_helper.php");
 include_once(__DIR__ . "/../Repositories/Merchant.php");
+include_once(__DIR__ . "/../Repositories/FlipService.php");
 include_once(__DIR__ . "/../Repositories/MerchantBankAccount.php");
 
 class MerchantModel extends BaseModel implements IAccount
@@ -14,13 +15,12 @@ class MerchantModel extends BaseModel implements IAccount
 
     function setUpNewMerchant($data)
     {
+        $merchantRepo = new MerchantRepo();
+        $merchantAccount = new MerchantBankAccount();
+        $merchant = new stdClass();
+
+        $this->begin_transaction();
         try {
-            $merchantRepo = new MerchantRepo();
-            $merchantAccount = new MerchantBankAccount();
-            $merchant = new stdClass();
-
-            $this->begin_transaction();
-
             $merchant->id = date('dmYhis') . uniqid();
             $merchant->name = $data->data->name;
             $merchant->balance = $data->data->balance;
@@ -38,7 +38,7 @@ class MerchantModel extends BaseModel implements IAccount
             $this->commit();
             return (object) ['merchant' => $merchant, 'accountFinance' => $accountFinance];
         } catch (\Throwable $ex) {
-            $this->rollback()();
+            $this->rollback();
             throw $ex;
         }
     }
@@ -54,18 +54,35 @@ class MerchantModel extends BaseModel implements IAccount
         }
     }
 
-    public function withdraw($id, $amount)
+    public function withdraw($id, $amount, $account)
     {
+        $merchantRepo = new MerchantRepo();
+        $flipRepo = new FlipService();
+        $this->begin_transaction();
         try {
-            $merchantRepo = new MerchantRepo();
-            $checking = $merchantRepo->checkingBalance($id, $amount);
-            if ($checking) {
-                $result = $merchantRepo->withdrawDeposit($id, $amount);
-                return $result;
+            $validMerchant = $merchantRepo->checkingBalance($id, $amount, $account);
+            if ($validMerchant) {
+                $merchantRepo->withdrawDeposit($id, $amount);
+                $flipHelper = new FlipHelper();
+                $request = ['bank_code' => $validMerchant->bank_id, 'account_number' => $validMerchant->bank_account, 'amount' => $amount, 'remark' => $id];
+                $response = $flipHelper->postRequest($request);
+                $flipRepo->savingRequest((object) [
+                    'request' => json_encode($request),
+                    'response' => json_encode($response),
+                    'id' => date('dmYhis') . uniqid(),
+                    'status' => (($response->status === 'PENDING') ? 1 : 2),
+                    'merchant_id' =>  $id,
+                    'request_id' => $response->id,
+                    'receipt' => $response->receipt,
+                    'fee' => $response->fee
+                ]);
+                $this->commit();
+                return $response;
             } else {
                 throw new \Exception('not enought balance or merchant is not found');
             }
         } catch (\Throwable $ex) {
+            $this->rollback();
             throw $ex;
         }
     }
@@ -76,6 +93,35 @@ class MerchantModel extends BaseModel implements IAccount
             $merchantRepo = new MerchantRepo();
             $result = $merchantRepo->addDeposit($id, $amount);
             return $result;
+        } catch (\Throwable $ex) {
+            throw $ex;
+        }
+    }
+
+    public function getFinanceAccount($id)
+    {
+        try {
+            $merchantRepo = new MerchantBankAccount();
+            $result = $merchantRepo->getBankAccount($id);
+            return $result;
+        } catch (\Throwable $ex) {
+            throw $ex;
+        }
+    }
+
+    public function checkStatus($id)
+    {
+        $flipRepo = new FlipService();
+        $flipHelper = new FlipHelper();
+        try {
+            $response = $flipHelper->getStatus($id);
+            $flipRepo->updateRequest((object)[
+                'response' => json_encode($response),
+                'status' => (($response->status === 'PENDING') ? 1 : 2),
+                'receipt' => $response->receipt,
+                'time_served' => $response->time_served
+            ], $id);
+            return $response;
         } catch (\Throwable $ex) {
             throw $ex;
         }

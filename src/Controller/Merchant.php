@@ -54,4 +54,15 @@ class Merchant extends BaseController
             $this->internalServerError($e->getMessage());
         }
     }
+
+    public function getFinanceAccount($id)
+    {
+        try {
+            $merchant = new MerchantModel();
+            $result = $merchant->getFinanceAccount($id);
+            $this->result($result, "SUCCSS");
+        } catch (\Throwable $e) {
+            $this->internalServerError($e->getMessage());
+        }
+    }
 }

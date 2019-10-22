@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.7.26)
 # Database: test
-# Generation Time: 2019-10-21 12:25:08 +0000
+# Generation Time: 2019-10-22 19:49:00 +0000
 # ************************************************************
 
 
@@ -51,20 +51,30 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `flip_service`;
 
 CREATE TABLE `flip_service` (
-  `id` int(11) unsigned NOT NULL,
+  `id` varchar(40) NOT NULL DEFAULT '',
   `request` text NOT NULL,
   `response` text NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `status` int(11) NOT NULL DEFAULT '1' COMMENT '1: pending. 2: success',
   `merchant_id` varchar(40) NOT NULL DEFAULT '',
-  `request_id` int(11) unsigned NOT NULL,
+  `request_id` bigint(20) unsigned NOT NULL,
   `receipt` varchar(300) DEFAULT NULL,
-  `time_served` int(11) DEFAULT NULL,
+  `time_served` datetime DEFAULT NULL,
+  `fee` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `merchant_use_flip` (`merchant_id`),
   CONSTRAINT `merchant_use_flip` FOREIGN KEY (`merchant_id`) REFERENCES `merchant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `flip_service` WRITE;
+/*!40000 ALTER TABLE `flip_service` DISABLE KEYS */;
+
+INSERT INTO `flip_service` (`id`, `request`, `response`, `created_at`, `status`, `merchant_id`, `request_id`, `receipt`, `time_served`, `fee`)
+VALUES
+	('221020190731525daf5928c94d8','{\"bank_code\":3,\"account_number\":\"1234567890\",\"amount\":10,\"remark\":\"191020191214255daafe21c01e2\"}','{\"id\":7524883683,\"amount\":10000,\"status\":\"PENDING\",\"timestamp\":\"2019-10-23 02:38:31\",\"bank_code\":\"bni\",\"account_number\":\"1234567890\",\"beneficiary_name\":\"PT FLIP\",\"remark\":\"sample remark\",\"receipt\":\"https:\\/\\/flip-receipt.oss-ap-southeast-5.aliyuncs.com\\/debit_receipt\\/126316_3d07f9fef9612c7275b3c36f7e1e5762.jpg\",\"time_served\":\"2019-10-23 02:47:31\",\"fee\":4000}','2019-10-23 02:31:52',1,'191020191214255daafe21c01e2',7524883683,'https://flip-receipt.oss-ap-southeast-5.aliyuncs.com/debit_receipt/126316_3d07f9fef9612c7275b3c36f7e1e5762.jpg','2019-10-23 02:47:31',4000);
+
+/*!40000 ALTER TABLE `flip_service` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table merchant
@@ -93,7 +103,7 @@ VALUES
 	('191020191214165daafe18155e3','altha2346',10000.00,'2019-10-19 19:14:16'),
 	('191020191214195daafe1b11c64','altha23467',10000.00,'2019-10-19 19:14:19'),
 	('191020191214225daafe1e2063a','altha234678',10000.00,'2019-10-19 19:14:22'),
-	('191020191214255daafe21c01e2','altha234679',19980.00,'2019-10-19 19:14:25');
+	('191020191214255daafe21c01e2','altha234679',19870.00,'2019-10-19 19:14:25');
 
 /*!40000 ALTER TABLE `merchant` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -120,46 +130,17 @@ LOCK TABLES `merchant_bank_account` WRITE;
 INSERT INTO `merchant_bank_account` (`id`, `merchant_id`, `bank_account`, `bank_id`)
 VALUES
 	('191020191145205daaf750169d2','191020191145205daaf7500c7de','1234567890',1),
-	('191020191145205daaf750172cc','191020191145205daaf7500c7de','3234567890',2),
-	('191020191214035daafe0ba5413','191020191214035daafe0ba4a54','1234567890',1),
-	('191020191214035daafe0ba5959','191020191214035daafe0ba4a54','3234567890',2),
-	('191020191214075daafe0f1cd18','191020191214075daafe0f1c72c','1234567890',1),
-	('191020191214075daafe0f1d4cd','191020191214075daafe0f1c72c','3234567890',2),
+	('191020191214035daafe0ba5413','191020191214035daafe0ba4a54','1234567890',2),
+	('191020191214075daafe0f1cd18','191020191214075daafe0f1c72c','1234567890',3),
 	('191020191214095daafe1192c14','191020191214095daafe1190b8c','1234567890',1),
-	('191020191214095daafe119618f','191020191214095daafe1190b8c','3234567890',2),
-	('191020191214125daafe14ce9f3','191020191214125daafe14ce417','1234567890',1),
-	('191020191214125daafe14ceb3f','191020191214125daafe14ce417','3234567890',2),
-	('191020191214165daafe18157c4','191020191214165daafe18155e3','1234567890',1),
-	('191020191214165daafe18158e4','191020191214165daafe18155e3','3234567890',2),
+	('191020191214125daafe14ce9f3','191020191214125daafe14ce417','1234567890',2),
+	('191020191214165daafe18157c4','191020191214165daafe18155e3','1234567890',3),
 	('191020191214195daafe1b14a81','191020191214195daafe1b11c64','1234567890',1),
-	('191020191214195daafe1b14c05','191020191214195daafe1b11c64','3234567890',2),
-	('191020191214225daafe1e20777','191020191214225daafe1e2063a','1234567890',1),
-	('191020191214225daafe1e20891','191020191214225daafe1e2063a','3234567890',2),
-	('191020191214255daafe21c055c','191020191214255daafe21c01e2','1234567890',1),
-	('191020191214255daafe21c0c53','191020191214255daafe21c01e2','3234567890',2);
+	('191020191214225daafe1e20777','191020191214225daafe1e2063a','1234567890',2),
+	('191020191214255daafe21c055c','191020191214255daafe21c01e2','1234567890',3);
 
 /*!40000 ALTER TABLE `merchant_bank_account` ENABLE KEYS */;
 UNLOCK TABLES;
-
-
-# Dump of table merchant_request
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `merchant_request`;
-
-CREATE TABLE `merchant_request` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `type` int(11) NOT NULL DEFAULT '1' COMMENT '1: withdraw, 2: deposit',
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
-  `merchant_id` int(11) NOT NULL,
-  `amount` decimal(11,2) NOT NULL DEFAULT '0.00',
-  `status` int(11) DEFAULT '1' COMMENT '1: process, 2: completed',
-  `bank_name` int(11) NOT NULL,
-  `bank_account` varchar(40) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 
 

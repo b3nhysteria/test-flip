@@ -5,7 +5,6 @@ include "configuration/env.php";
 class FlipHelper
 {
     private $request = "/disburse";
-    private $status = "/disburse\/";
 
     public function __construct()
     {
@@ -15,13 +14,16 @@ class FlipHelper
 
     public function postRequest($data)
     {
-        $data['token'] = $this->token;
-        return $this->curlRequest($this->host . $this->request);
+        $params = [];
+        foreach ($data as $key => $value) {
+            $params[] = "$key=$value";
+        }
+        return $this->curlRequest($this->host . $this->request, implode('&', $params));
     }
 
     public function getStatus($id)
     {
-        return $this->curlRequest($this->host . $this->status . $id);
+        return $this->curlRequest($this->host . "/disburse/$id");
     }
 
 
@@ -32,26 +34,17 @@ class FlipHelper
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+        curl_setopt($ch, CURLOPT_USERPWD, getenv('TOKEN'));
         curl_setopt($ch, CURLOPT_USERAGENT, $agent);
         if ($postData) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
             curl_setopt($ch, CURLOPT_POST, true);
-            if (isset($postData['token'])) {
-                $header = array(
-                    "Content-Type: application/json",
-                    "Authorization: Bearer " . $postData['token']
-                );
-                if (count($postFiles) > 0) {
-                    $return = $this->curl_custom_postfields($postData, $postFiles);
-                    $header = array(
-                        "Content-Type: multipart/form-data; boundary={$return['header']}",
-                        "Authorization: Bearer " . $postData['token']
-                    );
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, $return['body']);
-                }
-                curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-            }
+            $header = array(
+                "Content-Type: application/x-www-form-urlencoded"
+            );
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         }
         $result['header'] = curl_getinfo($ch);
         $result['errno'] = curl_errno($ch);

@@ -7,7 +7,12 @@ include 'src/Controller/Merchant.php';
 include 'configuration/env.php';
 header("Access-Control-Allow-Origin: *");
 Route::register('/status/([0-9a-zA-Z]*)', function ($id) {
-    echo $id;
+    $disburse = new Disburse();
+    try {
+        echo $disburse->status($id);
+    } catch (\Throwable $err) {
+        throw $err;
+    }
 }, 'get');
 
 Route::register('/bank_list', function () {
@@ -40,7 +45,7 @@ Route::register('/add_balance', function () {
 Route::register('/withdraw', function () {
     $disburse = new Disburse();
     try {
-        echo $disburse->withdraw($_POST);
+        echo $disburse->withdraw();
     } catch (\Throwable $err) {
         throw $err;
     }
@@ -50,6 +55,11 @@ Route::register('/addmerchant', function () {
     $merchant = new Merchant();
     $merchant->add();
 }, 'post');
+
+Route::register('/getaccountmerchant/([0-9a-zA-Z]*)', function ($id) {
+    $merchant = new Merchant();
+    $merchant->getFinanceAccount($id);
+}, 'get');
 
 Route::register('/getmerchant', function () {
     $merchant = new Merchant();

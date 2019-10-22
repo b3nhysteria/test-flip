@@ -17,4 +17,18 @@ class MerchantBankAccount
         $stmt->execute();
         $stmt->close();
     }
+
+    public function getBankAccount($id)
+    {
+        $sql = 'select * from merchant_bank_account where merchant_id = ?';
+        $conn = ConnectionFactory::getFactory()->getConnection();
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            throw new \Exception($conn->error);
+        }
+        $stmt->bind_param("s", $id);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return $result;
+    }
 }

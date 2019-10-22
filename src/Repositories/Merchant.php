@@ -49,17 +49,21 @@ class MerchantRepo
         $stmt->execute();
     }
 
-    public function checkingBalance($id, $amount)
+    public function checkingBalance($id, $amount, $account)
     {
-        $sql = 'select * from merchant where id = ? and balance >= ? LOCK IN SHARE MODE';
+        $sql = 'select * from
+        merchant m left join merchant_bank_account mba
+        on m.id = mba.merchant_id
+        where m.id = ? and m.balance >= ? and mba.id = ?
+        FOR UPDATE';
         $conn = ConnectionFactory::getFactory()->getConnection();
         $stmt = $conn->prepare($sql);
         if (!$stmt) {
             throw new \Exception($conn->error);
         }
-        $stmt->bind_param("sd", $id, $amount);
+        $stmt->bind_param("sds", $id, $amount, $account);
         $stmt->execute();
-        $result = $stmt->get_result()->fetch_object();;
+        $result = $stmt->get_result()->fetch_object();
         return $result;
     }
 
